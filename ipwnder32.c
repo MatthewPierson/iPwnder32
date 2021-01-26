@@ -14,9 +14,9 @@
 
 #define VERSION     3
 #define NIVERSION   1
-#define NINIVERSION 1
+#define NINIVERSION 2
 
-#define FIXNUM      130
+#define FIXNUM      134
 
 irecv_client_t client;
 
@@ -381,6 +381,9 @@ int main(int argc, char** argv) {
         } else if(devinfo->cpid == 0x8960){
             //printf("checkm8_32\n");
             checkm8_32_exploit(client, device, devinfo);
+        } else if(devinfo->cpid == 0x8010){
+            //printf("checkm8_64\n");
+            checkm8_64_exploit(client, device, devinfo);
         } else {
             printf("\x1b[31mERROR: This device is not supported.\x1b[39m\n");
         }
